@@ -30,6 +30,9 @@ class SubjectController extends Controller
                 
     
             // }
+
+            // $subjects = Subject::pluck('sub_name', 'id');
+            // return response()->json($subjects);
     }
 
     public function saveData(Request $request)

@@ -100,7 +100,7 @@
 								</a>
 							</li>
 							<li>
-								<a href="{{ url('student')}}">
+								<a href="{{ url('managesection')}}">
 								<img src="assets/images/chapter.png" alt=""> &nbsp;&nbsp;
 									<span class="menu-text">Manage Student</span>
 									
@@ -114,7 +114,7 @@
 								</a>
 							</li>
 							<li>
-								<a href="trips.html">
+								<a href="{{ url('timetable')}}">
 								<img src="assets/images/timetable.png" alt=""> &nbsp;&nbsp;
 									<span class="menu-text">Timetable</span>
 									
@@ -213,7 +213,7 @@
 									<a class="dropdown-item d-flex align-items-center" href=""><i
 											class="bi bi-gear fs-4 me-2"></i>Settings</a>
 									<div class="d-grid p-3 py-2">
-										<a class="btn btn-danger" href="login.html">Logout</a>
+										<a class="btn btn-danger" href="{{ url('logout')}}">Logout</a>
 									</div>
 								</div>
 							</div>

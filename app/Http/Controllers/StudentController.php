@@ -190,11 +190,21 @@ private function generateRegnNo($reg_no)
 
 // *********************************************************************************
 
-        public function getStudentsByClass($classId)
-        {
-            $students = Student::where('class', $classId)->pluck('std_name', 'std_id');
-            return response()->json($students);
-        }
+            public function getName(Request $request){
+
+                $std_names = Student::
+                 where('class', '=', $request->classId)
+                                ->where('status', '!=', 'Deleted')
+                                ->where('status', '!=', 'Inactive')
+                                ->pluck('std_name', 'std_id');
+                               //dd($std_names);
+                return response()->json(['std_names' => $std_names]);
+            }
+        // public function getStudentsByClass($classId)
+        // {
+        //     $students = Student::where('class', $classId)->pluck('std_name', 'std_id');
+        //     return response()->json($students);
+        // }
 
 
 

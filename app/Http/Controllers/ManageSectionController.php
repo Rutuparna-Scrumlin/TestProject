@@ -19,61 +19,39 @@ class ManageSectionController extends Controller
      */
     public function index()
     {
+        $managesections = ManageSection::where('status', '!=' , 'Deleted')->get();
+       // return $managesections;
         $classdetail = Classdetails ::where('status', '!=' , 'Deleted')->where('status', '!=' , 'Inactive')->pluck('cls_name','id');
         $students = Student::where('status', '!=' , 'Deleted')->where('status', '!=' , 'Inactive')->pluck('std_name','std_id');
         $sections = Section::where('status', '!=' , 'Deleted')->where('status', '!=' , 'Inactive')->pluck('sec_name','sec_id');
         //$reg_no = $this->generateRegnNo(''); // Generate registration number for displaying in the form
-        return view('backend.managesection', compact('students','classdetail','sections'));
+        return view('backend.managesection', compact('managesections','students','classdetail','sections'));
     }
 
-//     public function saveData(Request $request)
-//     {
-       
-       
-//         // Generate registration number
-//         $reg_no = $this->generateRegnNo($request->reg_no);
+    public function saveData(Request $request)
+    {
 
-
-//         if($request->mode == "add") {
-//             $existingStudent = Student::where('status', '!=' , 'Deleted')->where('adhar', $request->adhar)->first();
-//             // print_r($existingStudent);
-//             // exit;
-
-//         if($existingStudent){
-//             return response()->json(['status' => false, 'message' => "ERROR!! Student Adhaar already exist"]);
-//         }else{
-//             $save = Student::create([
-//                 'std_name'=>$request->std_name,
-//                 'reg_date'=>$request->reg_date,
-//                 'reg_no' => $reg_no, // Assign the generated registration number
-//                 'images' => implode(',', $fileNames),
-//                 'dob' => $request->dob,
-//                 'adhar' => $request->adhar,
-//                 'class' =>$request->class,
-//                 'fathers_name' =>$request->fathers_name, 
-//                 'f_adhar' =>$request->f_adhar,
-//                 'mothers_name' => $request->mothers_name,
-//                 'm_adhar' => $request->m_adhar,
-//                 'g_phone_no' => $request->g_phone_no,
-//                 'email' =>$request->email,
-//                 'gur_name' => $request->gur_name,
-//                 'emg_contact_no' =>$request->emg_contact_no,
-//                 'address' => $request->address,
-//                 'per_address' =>$request->per_address, 
-//                 'created_at'  => date('Y-m-d H:i:s'),
-//                 'updated_at'  => null,
-//                 'status'      => $request->status
-//             ]);
-//             if($save){
-//                     // Generate registration number
-//                     $reg_no = $this->generateRegnNo('');
-//                 return response()->json(['status' => true, 'message' => 'Student saved Successfully']);
-//             }else{
-//                 return response()->json(['status' => false, 'message' => "Student cound not be created"]);
-//             }
-//         }
+        if($request->mode == "add") {
+            $save = ManageSection::create([
+                'cls_name'=>$request->cls_name,
+                'std_name'=>$request->std_name,
+                'sec_name' => $request->sec_name,
+                'roll_no' => $request->roll_no,
+                'class' =>$request->class, 
+                'created_at'  => date('Y-m-d H:i:s'),
+                'updated_at'  => null,
+                'status'      => $request->status
+            ]);
+            if($save){
+                    // Generate registration number
+                    //$reg_no = $this->generateRegnNo('');
+                return response()->json(['status' => true, 'message' => 'Student saved Successfully']);
+            }else{
+                return response()->json(['status' => false, 'message' => "Student cound not be created"]);
+            }
+        }
             
-//     }
+    }
 
     
 //         if ($request->mode == "edit") {
@@ -125,11 +103,11 @@ class ManageSectionController extends Controller
 //     // /**
 //     //  * get data for editing
 //     //  */
-//     public function getData(string $id)
-//     {
-//         $students = Student::where('std_id', $id)->first();
-//         return response()->json([$students]);
-//     }
+    public function getData(string $id)
+    {
+        $ManageSections = ManageSection::where('id', $id)->first();
+        return response()->json([$ManageSections]);
+    }
 
 //     /**
 //      * delete data
@@ -170,7 +148,7 @@ class ManageSectionController extends Controller
 //         Counter::where('id', 1)->update(['counter' => $upcount]);
 //         return $reg_no;
 //     }
-// }
+ //}
 
 // *********************************************************************************
 

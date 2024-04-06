@@ -30,8 +30,33 @@
                                     </tr>
                                 </thead>  
                                 <tbody>
-                                  
-                                </tbody>               
+                                    @if (!empty($managesections))
+                                        <?php $sl = 1; ?>
+                                        @foreach ($managesections as $managesection)
+                                            <tr>
+                                                <td>{{ $sl++ }}</td>
+                                                <td>{{$classdetail[$managesection->cls_name] }}</td>
+                                                <td>{{ $students[$managesection->std_name] }}</td>
+                                                <td>{{ $sections[$managesection->sec_name]}}</td>
+                                                <td>{{ $managesection->roll_no}}</td>
+                                                <td>{!! $managesection->status == 'Active'
+                                                    ? "<span class='status-btn badge bg-success'>Active</span>"
+                                                    : "<span class='status-btn badge bg-danger'>Inactive</span>" !!}</td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href='#' class='editbtn' onclick='showEdit({{ $managesection->id }})'
+                                                            title='Edit'><img src='assets/images/user.svg'
+                                                                style='height:20px; width:20px' /></a>&nbsp&nbsp
+                                                        <a href='javascript:void(0)'
+                                                            onclick="deleteData('{{ url('managesection/delete') }}/{{ $managesection->id }}')"
+                                                            title='Delete'><img src='assets/images/delete.svg'
+                                                                style='height:23px; width:23px' /></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                </tbody>              
                             </table>
                         </div>
                     </div>
@@ -60,7 +85,7 @@
                                                 <div class="col-6">
                                                     <div class="mb-3">
                                                         <label for="cls_name" class="form-label">Class <span style='color:red' title='mandatory feild'>* </label>
-                                                        <select class="form-select" aria-label="class" id='cls_name' name="cls_name">
+                                                        <select class="form-select" aria-label="class" id='cls_name' name="cls_name" onchange='loadName()'>
                                                                 <option value="">Select Class</option>
                                                             @foreach ($classdetail as $key => $item)
                                                                 <option value="{{ $key }}">{{ $item }}</option>
@@ -79,8 +104,8 @@
                                                 
                                                 <div class="col-6">
                                                     <div class="mb-3">
-                                                        <label for="class" class="form-label">Section <span style='color:red' title='mandatory feild'>* </label>
-                                                        <select class="form-select" aria-label="class" id='class' name="class">
+                                                        <label for="sec_name" class="form-label">Section <span style='color:red' title='mandatory feild'>* </label>
+                                                        <select class="form-select" aria-label="sec_name" id='sec_name' name="sec_name">
                                                                 <option value="">Select Section</option>
                                                             @foreach ($sections as $key => $item)
                                                                 <option value="{{ $key }}">{{ $item }}</option>
@@ -90,8 +115,8 @@
                                                 </div>
                                                 <div class="col-6">                                                 
                                                     <div class="mb-3">
-                                                        <label for="emp_id" class="form-label">Roll No </label>
-                                                        <input class="form-control" type="text" name='photo'placeholder="Enter Roll No" id='photo' />
+                                                        <label for="roll_no" class="form-label">Roll No  <span style='color:red' title='mandatory feild'>* </label>
+                                                        <input class="form-control" type="text" name='roll_no'placeholder="Enter Roll No" id='roll_no' />
                                                     </div>
                                                 </div>
                                                
@@ -135,27 +160,34 @@
 @section('scripts')
 
 <script>
-    function getStudentsByClass(classId) {
-    // Clear existing options
-    var studentsSelect = document.getElementById("std_name");
-    studentsSelect.innerHTML = "<option value=''>Select Student</option>";
 
-    if (classId !== "") {
-        // Send AJAX request to fetch students by class
-        fetch('/getStudentsByClass/' + classId)
-            .then(response => response.json())
-            .then(data => {
-                // Populate student select field with fetched students
-                for (var studentId in data) {
-                    var option = document.createElement("option");
-                    option.value = studentId;
-                    option.text = data[studentId];
-                    studentsSelect.appendChild(option);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
+function loadName(std_name="") {
+    var classId = $('#cls_name').val();
+    $('#std_name').empty();
+    $.ajax({
+        url: '{{ url("managesection/stdname") }}',
+        type: 'POST',
+        data: {
+            classId: classId,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            $('#std_name').append('<option value="" disabled selected>Select Name</option>');
+            if (response && response.std_names) {
+                $.each(response.std_names, function (std_id, std_name) {
+                    $('#std_name').append($('<option>', {
+                        value: std_id,
+                        text: std_name
+                    }));
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error(error); // Log any errors to the console for debugging
+        }
+    });
 }
+
 
 </script>
 
@@ -180,307 +212,17 @@ function closePage() {
 
 
     $(document).ready(function() {
-        $("#addNewButton").click(function() {
-            showAdd();
-            
-            $('#exampleModal').modal('show');
-        });
-        $('#std_name').on('change',function(){
-            
-            var nameRegex = /^[A-Za-z\s]+$/;
-            var name = $(this).val();
-            if(!nameRegex.test(name)){
-                $('#error').html('!!Please Enter A Valid Name.');
-                return;
-            }else{
-                $('#error').html('');
-            }
-
-        });
-        $('#std_name').on('input',function(){
-            $('#error').html('');
-        })
-
-        $('#dob').on('change',function(){
-            var dob =new Date($("#dob").val());
-            var currentDate = new Date();
-            //alert($('#age').val());
-            if(dob > currentDate){
-                $("#error").html("!! Date of Birth should not exceed current date");
-                return false;
-            }
-        });
-        $('#dob').on('input',function(){
-            $('#error').html('');
-        });
-
-        $('#adhar').on('change', function() {
-            var adhar = $("#adhar").val();
-            var adharRegex = /^\d{12}$/;
-
-            if (!adharRegex.test(adhar)) {
-            $("#error").html("Invalid Aadhar Card. Please enter a valid 12-digit Aadhar number.");
-            } else {
-            $("#error").html(""); // Clear error message if email is valid
-            }
-         });
-         $('#adhar').on('input', function() {
-            $("#error").html(""); // 
-         });
-
-         $('#email').on('change', function() {
-            var email = $("#email").val();
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailRegex.test(email)) {
-            $("#error").html("Please enter a valid mail ID");
-            } else {
-            $("#error").html(""); // Clear error message if email is valid
-            }
-         });
-        $('#email').on('input',function(){
-            $('#error').html(''); 
-         });
-
-         $('#phone_no').on('change',function(){
-            var phone = $('#phone_no').val();
-                function getDigitSum(number) {
-                    var sum = 0;
-                    for (var i = 0; i < number.length; i++) {
-                        sum += parseInt(number[i]);
-                    }
-                    return sum;
-                }
-                var phoneRegex = /^\d+$/;
-                if (!phoneRegex.test(phone)) {
-                    $("#error").html("Please enter a valid Mobile number (only digits allowed).");
-                    return false;
-                }
-                if (getDigitSum(phone) === 0) {
-                    $("#error").html("Please enter a valid Mobile number.");
-                    return false;
-                }
-                if (phone.length < 10 || phone.length === 11) {
-                    $("#error").html("The Mobile number should be at least 10 digits long");
-                    return false;
-                }
-                var firstDigit = parseInt(phone.charAt(0));
-                if (firstDigit >= 0 && firstDigit <= 5) {
-                    $("#error").html("Please Enter a Valid Mobile Number");
-                    return false;
-                }
-
-        });
-        $('#phone_no').on('input',function(){
-            $('#error').html(''); 
-        });
-
-        $('#fathers_name').on('change',function(){
-            
-            var nameRegex = /^[A-Za-z\s]+$/;
-            var name = $(this).val();
-            if(!nameRegex.test(name)){
-                $('#error').html('!!Please Enter A Valid Fathers Name.');
-                return false;
-            }else{
-                $('#error').html('');
-            }
-
-        });
-        $('#fathers_name').on('input',function(){
-            $('#error').html('');
-        })
-
-        $('#f_adhar').on('change', function() {
-            var adhar = $("#f_adhar").val();
-            var adharRegex = /^\d{12}$/;
-
-            if (!adharRegex.test(adhar)) {
-            $("#error").html("Invalid Aadhar Card. Please enter a valid 12-digit Aadhar number for Father.");
-            } else {
-            $("#error").html(""); // Clear error message if email is valid
-            }
-         });
-         $('#f_adhar').on('input', function() {
-            $("#error").html(""); // 
-         });
-
-        $('#mothers_name').on('change',function(){
-            
-            var nameRegex = /^[A-Za-z\s]+$/;
-            var name = $(this).val();
-            if(!nameRegex.test(name)){
-                $('#error').html('!!Please Enter A Valid Mothers Name.');
-                return;
-            }else{
-                $('#error').html('');
-            }
-
-        });
-        $('#mothers_name').on('input',function(){
-            $('#error').html('');
-        })
-        $('#m_adhar').on('change', function() {
-            var adhar = $("#m_adhar").val();
-            var adharRegex = /^\d{12}$/;
-
-            if (!adharRegex.test(adhar)) {
-            $("#error").html("Invalid Aadhar Card. Please enter a valid 12-digit Aadhar number for Mother.");
-            } else {
-            $("#error").html(""); // Clear error message if email is valid
-            }
-         });
-         $('#m_adhar').on('input', function() {
-            $("#error").html(""); // 
-         });
-
         $("#Userform").submit(function(event) {
             
             event.preventDefault();
             var formData = new FormData(document.getElementById('Userform'));
             formData.append("_token", '{{ csrf_token() }}');
-
-         
-
-            if($('#std_name').val()==""||$('#dob').val()==""||$('#adhar').val()==""||$('#email').val()==""||$('#phone_no').val()==""||
+            if($('#cls_name').val()==""||$('#std_name').val()==""||$('#sec_name').val()==""||$('#roll_no').val()==""||
                 $('#status').val()==""){
                     $('#error').html('Missing Mandatory Feilds!! Please Check (*) Mark');
                     return;
             }
 
-               //..... Aadhaar validation for student father and mother......
-
-            var adhar = $("#adhar").val();
-            var f_adhar = $("#f_adhar").val();
-            var m_adhar = $("#m_adhar").val();
-
-            if (adhar === f_adhar || adhar === m_adhar || f_adhar === m_adhar) {
-                $("#error").html("Aadhaar numbers should be unique for each individual.").show();
-                return false;
-            } else {
-                $("#error").html("").hide(); // Clear and hide error message if Aadhaar numbers are unique
-            }
-
-            // ..........Aadhaar Validation........
-
-            
-            var nameRegex = /^[A-Za-z\s]+$/;
-            var name = $('#std_name').val();
-            //alert(name);
-            if(!nameRegex.test(name)){
-                $('#error').html('!!Please Enter A Valid Name.');
-                return;
-            }
-
-            var dob =new Date($("#dob").val());
-            var currentDate = new Date();
-            //alert($('#age').val());
-            if(dob > currentDate){
-                $("#error").html("!! Date of Birth should not exceed current date");
-                return false;
-            }
-
-            var adhar = $("#adhar").val();
-            var adharRegex = /^\d{12}$/;
-
-            if (!adharRegex.test(adhar)) {
-                $("#error").html("Invalid Aadhar Card. Please enter a valid 12-digit Aadhar number.");
-                return false;
-            }
-         
-
-            var email = $("#email").val();
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailRegex.test(email)) {
-             $("#error").html("Please enter a valid mail ID");
-            } 
-
-            // if(validatePh() == false){
-            //     $('#error').html('!!!INVALID PH');
-            //     return false;
-            // }
-            // var phone = $('#phone_no').val();
-               
-            // var phoneRegex = /^\d+$/;
-            // if (!phoneRegex.test(phone)) {
-            //     $("#error").html("Please enter a valid Mobile number (only digits allowed).");
-            //     return false;
-            // }
-            // if (getDigitSum(phone) === 0) {
-            //     $("#error").html("Please enter a valid Mobile number.");
-            //     return false;
-            // }
-            // if (phone.length < 10 || phone.length === 11) {
-            //     $("#error").html("The Mobile number should be at least 10 digits long");
-            //     return false;
-            // }
-            // var firstDigit = parseInt(phone.charAt(0));
-            // if (firstDigit >= 0 && firstDigit <= 5) {
-            //     $("#error").html("Please Enter a Valid Mobile Number");
-            //     return false;
-            // }
-
-            
-            var testRegex = /^[A-Za-z\s]+$/;
-            var fname = $('#fathers_name').val();
-            if(!testRegex.test(fname)){
-                $('#error').html('!!Please Enter A Valid Fathers Name.');
-                return false;
-            }
-
-
-            var adharr = $("#f_adhar").val();
-            var adharrRegex = /^\d{12}$/;
-
-            if (!adharrRegex.test(adharr)) {
-                $("#error").html("Invalid Aadhar Card. Please enter a valid 12-digit Aadhar number for Father.");
-                return false;
-            }
-
-            var nnameRegex = /^[A-Za-z\s]+$/;
-            var nname = $('#mothers_name').val();
-            if(!nnameRegex.test(nname)){
-                $('#error').html('!!Please Enter A Valid Mothers Name.');
-                return  false;
-            }
-
-            var adhar = $("#m_adhar").val();
-            var adharRegex = /^\d{12}$/;
-
-            if (!adharRegex.test(adhar)) {
-                $("#error").html("Invalid Aadhar Card. Please enter a valid 12-digit Aadhar number for Mother.");
-                return false;
-            }
-
-            // var phone = $('#g_phone_no').val();
-                
-            //     var phoneRegex = /^\d+$/;
-            //     if (!phoneRegex.test(phone)) {
-            //         $("#error").html("Please enter a valid Mobile number (only digits allowed).");
-            //         return false;
-            //     }
-            //     if (getDigitSum(phone) === 0) {
-            //         $("#error").html("Please enter a valid Mobile number.");
-            //         return false;
-            //     }
-            //     if (phone.length < 10 || phone.length === 11) {
-            //         $("#error").html("The Mobile number should be at least 10 digits long");
-            //         return false;
-            //     }
-            //     var firstDigit = parseInt(phone.charAt(0));
-            //     if (firstDigit >= 0 && firstDigit <= 5) {
-            //         $("#error").html("Please Enter a Valid Mobile Number");
-            //         return false;
-            //     }
-
-            // var email = $("#g_email").val();
-            // var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            // if (!emailRegex.test(email)) {
-            //  $("#error").html("Please enter a valid mail ID");
-            //  return false;
-            // } 
 
 
             $.ajax({
@@ -540,7 +282,7 @@ function closePage() {
         document.getElementById("recordid").value = id;
 
         $.ajax({
-            url: "{{ url('student/edit') }}/" + id,
+            url: "{{ url('managesection/edit') }}/" + id,
             headers: {
                 '_token': '{{ csrf_token() }}'
             },
@@ -550,24 +292,11 @@ function closePage() {
                 // Assuming you have the Bootstrap modal with ID 'exampleModal'
                 let myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
                 myModal.show();
-
-                document.getElementById("std_name").value = data[0].std_name;
-                document.getElementById("reg_date").value = data[0].reg_date;
-                document.getElementById("reg_no").value = data[0].reg_no;
-                document.getElementById("photo").value = data[0].photo;
-                document.getElementById("dob").value = data[0].dob;
-                document.getElementById("adhar").value = data[0].adhar;
-                document.getElementById("class").value = data[0].class;
-                document.getElementById("fathers_name").value = data[0].fathers_name;
-                document.getElementById("f_adhar").value = data[0].f_adhar;
-                document.getElementById("mothers_name").value = data[0].mothers_name;
-                document.getElementById("m_adhar").value = data[0].m_adhar;
-                document.getElementById("g_phone_no").value = data[0].g_phone_no;
-                document.getElementById("email").value = data[0].email;
-                document.getElementById("gur_name").value = data[0].gur_name;            
-                document.getElementById("emg_contact_no").value = data[0].emg_contact_no;
-                document.getElementById("address").value = data[0].address;
-                document.getElementById("per_address").value = data[0].per_address;
+               
+                document.getElementById("cls_name").value = data[0].cls_name;
+                loadName(data[0].std_name);
+                document.getElementById("sec_name").value = data[0].sec_name;
+                document.getElementById("roll_no").value = data[0].roll_no;
                 document.getElementById("status").value = data[0].status;
             },
             error: function() {

@@ -65,6 +65,7 @@
   <div class="login-container">
   <img src="assets/images/smslogo.png" alt="School Logo" width="100">
     <h2>Login</h2>
+    @include('layouts.alert_message')
     <form id="loginForm" action="{{ url('login') }}" method="POST">
       @csrf
       <div class="form-group">
@@ -108,31 +109,7 @@
     
   </script>
   <script>
-$("#loginForm").submit(function(event) {
-        //alert("MAMA");
-        event.preventDefault();
-        var formData = new FormData(document.getElementById('loginForm'));
-        //alert(formData);
-        $.ajax({
-            type: "POST",
-            url: "{{url('login')}}",
-            data: formData,
-            contentType: false, 
-            processData: false,
-            dataType: "json",
-            success: function(response) {
-                if(response.success == true){
-                    window.location = "/dashboard";
-                }else{
-                    alert(response.message);
-                }
-                
-            },
-            error: function() {
-                alert("Error saving data.");
-            }
-        });
-    });
+
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </body>

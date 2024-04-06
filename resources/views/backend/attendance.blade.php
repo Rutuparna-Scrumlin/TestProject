@@ -47,17 +47,17 @@
                                 </thead>
                                
                                 <tbody>
-                                    @if (!empty($students))
+                                    @if (!empty($managesections))
                                         <?php $sl = 1; ?>
-                                        @foreach ($students as $student)
+                                        @foreach ($managesections as $managesection)
                                             <tr>
                                                 <td>{{ $sl++ }}</td>
-                                                <td>{{$student->std_name }}</td>
-                                                <td>{{$student->roll_no }}</td>
+                                                <td>{{ $students[$managesection->std_name] }}</td>
+                                                <td>{{$managesection->roll_no }}</td>
                                                 <td>
                                                     <div class="radio">
-                                                    <label><input type="radio" name="optradio_{{$student->std_id}}" value="P">P</label>
-                                                    <label><input type="radio" name="optradio_{{$student->std_id}}" value="A">A</label>
+                                                    <label><input type="radio" name="optradio_{{$managesection->std_name}}" value="P">P</label>
+                                                    <label><input type="radio" name="optradio_{{$managesection->std_name}}" value="A">A</label>
                                                     </div>
                                                 </td>
                                             </tr>

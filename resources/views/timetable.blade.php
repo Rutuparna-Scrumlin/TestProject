@@ -148,7 +148,7 @@
                                                 <div class="col-6">
                                                     <div class="mb-3">
                                                         <label for="name" class="form-label">Day <span style='color:red' title='mandatory feild'>*</label>
-                                                        <select class="form-select" aria-label="fullname" id='day' name="day" >
+                                                        <select class="form-select" aria-label="fullname" id='name' name="name" >
                                                             <option value="">Select Day</option>
                                                             <option value="Sunday">Sunday</option>
                                                             <option value="Monday">Monday</option>
@@ -163,22 +163,22 @@
                                                 </div>
                                                 <div class="col-3">                
                                                     <div class="mb-3">
-                                                        <label for="from_time" class="form-label">From Time</label>
-                                                        <input class="form-control" type="time" name='from_time' id='from_time' >
+                                                        <label for="emp_id" class="form-label">From Time</label>
+                                                        <input class="form-control" type="time" name='emp_id' id='emp_id' >
                                                     </div>
                                                 </div>
                                                 <div class="col-3">                
                                                     <div class="mb-3">
-                                                        <label for="to_time" class="form-label"> To Time</label>
-                                                        <input class="form-control" type="time" name='to_time' id='to_time' >
+                                                        <label for="emp_id" class="form-label"> To Time</label>
+                                                        <input class="form-control" type="time" name='emp_id' id='emp_id' >
                                                     </div>
                                                 </div>
                                                
                                                 <div class="col-6">
                                                     <div class="mb-3">
-                                                        <label for="sub_name" class="form-label">Subject <span style='color:red' title='mandatory feild'>*</label>
-                                                        <select class="form-select" aria-label="sub_name" id='deg_name' name="sub_name" >
-                                                                <option value="">Select Subject</option>
+                                                        <label for="name" class="form-label">Subject <span style='color:red' title='mandatory feild'>*</label>
+                                                        <select class="form-select" aria-label="deg_name" id='deg_name' name="deg_name" onchange='loadName()'>
+                                                                <option value="">Select Position</option>
                                                             @foreach ($subjects as $key => $item)
                                                                 <option value="{{ $key }}">{{ $item }}</option>
                                                             @endforeach
